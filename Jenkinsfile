@@ -8,12 +8,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/kumaresancloud1990-devops/guviproj1.git'
-            }
-        }
-
         stage('Build Image') {
             steps {
                 sh 'docker build -t react-app .'
