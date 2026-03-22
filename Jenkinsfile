@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+	DOCKERHUB_CREDS = 'Docker Credentials'
         DEV_REPO = "kumaresankarana/reactproj1-dev"
         PROD_REPO = "kumaresankarana/reactproj1-prod"
     }
