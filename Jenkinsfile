@@ -2,29 +2,42 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDS = 'dockerhub-creds'
-        IMAGE_NAME = "kumaresancloud1990/dev-react-app"
+        DOCKERHUB_CREDS = 'Docker Credentials'
+        DEV_REPO = "kumaresankarana/reactproj1-dev"
+        PROD_REPO = "kumaresankarana/reactproj1-prod"
     }
 
     stages {
 
-        stage('Build Image') {
+        stage('Docker Login') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:latest .'
+                withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    // Login to Docker Hub
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+                }
             }
         }
 
-        stage('Docker Login') {
+        stage('Build Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "$DOCKERHUB_CREDS", usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                script {
+                    // Build the image and tag it with branch name for clarity
+                    def imageTag = "${env.BRANCH_NAME}-latest"
+                    sh "docker build -t ${DEV_REPO}:${imageTag} ."
+                    env.IMAGE_TAG = imageTag
                 }
             }
         }
 
         stage('Push Image') {
             steps {
-                sh 'docker push $IMAGE_NAME:latest'
+                script {
+                    if (env.BRANCH_NAME == 'dev') {
+                        sh "docker push ${DEV_REPO}:${env.IMAGE_TAG}"
+                    } else if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
+                        sh "docker push ${PROD_REPO}:${env.IMAGE_TAG}"
+                    }
+                }
             }
         }
 
@@ -33,4 +46,13 @@ pipeline {
                 sh './deploy.sh'
             }
         }
-    }// trigger build
+    }
+
+    post {
+        always {
+            echo "Cleaning up local Docker images..."
+            sh "docker rmi -f ${DEV_REPO}:${env.IMAGE_TAG} || true"
+            sh "docker rmi -f ${PROD_REPO}:${env.IMAGE_TAG} || true"
+        }
+    }
+}
