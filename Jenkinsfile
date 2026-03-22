@@ -2,40 +2,29 @@ pipeline {
     agent any
 
     environment {
-	DOCKERHUB_CREDS = 'Docker Credentials'
-        DEV_REPO = "kumaresankarana/reactproj1-dev"
-        PROD_REPO = "kumaresankarana/reactproj1-prod"
+        DOCKERHUB_CREDS = 'dockerhub-creds'
+        IMAGE_NAME = "kumaresancloud1990/dev-react-app"
     }
 
     stages {
 
         stage('Build Image') {
             steps {
-                sh 'docker build -t react-app .'
+                sh 'docker build -t $IMAGE_NAME:latest .'
             }
         }
 
-        stage('Push to Dev Repo') {
-            when {
-                branch 'dev'
-            }
+        stage('Docker Login') {
             steps {
-                sh '''
-                docker tag react-app $DEV_REPO:latest
-                docker push $DEV_REPO:latest
-                '''
+                withCredentials([usernamePassword(credentialsId: "$DOCKERHUB_CREDS", usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                }
             }
         }
 
-        stage('Push to Prod Repo') {
-            when {
-                branch 'master'
-            }
+        stage('Push Image') {
             steps {
-                sh '''
-                docker tag react-app $PROD_REPO:latest
-                docker push $PROD_REPO:latest
-                '''
+                sh 'docker push $IMAGE_NAME:latest'
             }
         }
 
@@ -45,4 +34,3 @@ pipeline {
             }
         }
     }
-}
