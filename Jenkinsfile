@@ -33,4 +33,4 @@ pipeline {
                 sh './deploy.sh'
             }
         }
-    }
+    }// trigger build
