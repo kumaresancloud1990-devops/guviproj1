@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     environment {
-        DEV_REPO = "yourdockerhub/dev-react-app"
-        PROD_REPO = "yourdockerhub/prod-react-app"
+        DEV_REPO = "kumaresankarana/reactproj1-dev"
+        PROD_REPO = "kumaresankarana/reactproj1-prod"
     }
 
     stages {
 
         stage('Clone Code') {
             steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/yourname/repo.git'
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/kumaresancloud1990-devops/guviproj1.git'
             }
         }
 
