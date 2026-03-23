@@ -15,15 +15,10 @@ pipeline {
             }
         }
 
-        stage('Get Branch Name') {
+        // 🔍 Debug (optional but useful)
+        stage('Debug Branch') {
             steps {
-                script {
-                    env.GIT_BRANCH_NAME = sh(
-                        script: "git rev-parse --abbrev-ref HEAD",
-                        returnStdout: true
-                    ).trim()
-                    echo "Current Branch: ${env.GIT_BRANCH_NAME}"
-                }
+                echo "Current Branch: ${env.BRANCH_NAME}"
             }
         }
 
@@ -43,7 +38,7 @@ pipeline {
         // ================= DEV =================
         stage('Build & Push DEV') {
             when {
-                expression { env.GIT_BRANCH_NAME == 'dev' }
+                expression { env.BRANCH_NAME == 'dev' }
             }
             steps {
                 echo "Building DEV image..."
@@ -56,7 +51,7 @@ pipeline {
 
         stage('Deploy DEV') {
             when {
-                expression { env.GIT_BRANCH_NAME == 'dev' }
+                expression { env.BRANCH_NAME == 'dev' }
             }
             steps {
                 echo "Deploying DEV..."
@@ -67,7 +62,7 @@ pipeline {
         // ================= PROD =================
         stage('Build & Push PROD') {
             when {
-                expression { env.GIT_BRANCH_NAME == 'main' }
+                expression { env.BRANCH_NAME == 'main' }
             }
             steps {
                 echo "Building PROD image..."
@@ -80,7 +75,7 @@ pipeline {
 
         stage('Deploy PROD') {
             when {
-                expression { env.GIT_BRANCH_NAME == 'main' }
+                expression { env.BRANCH_NAME == 'main' }
             }
             steps {
                 echo "Deploying PROD..."
