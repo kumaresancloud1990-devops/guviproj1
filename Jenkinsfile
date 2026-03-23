@@ -7,57 +7,45 @@ pipeline {
         PROD_IMAGE = "kumaresankarana/reactproj1-prod"
     }
 
-stages {
+    stages {
 
-    stage('Docker Login') {
-        steps {
-            echo "Logging in to Docker Hub..."
-            withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                sh 'echo $PASS | docker login -u $USER --password-stdin'
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "$DOCKERHUB_CREDS", usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    sh "docker build -t $DEV_IMAGE:latest ."
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                script {
+                    sh "docker push $DEV_IMAGE:latest"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh "./deploy.sh $DEV_IMAGE:latest"
+                }
             }
         }
     }
 
-    stage('Build & Push Dev Image') {
-        when {
-            expression { env.BRANCH_NAME == 'dev' }  // ← Fixed
+    post {
+        always {
+            sh "docker rmi -f $DEV_IMAGE:latest || true"
+            sh "docker rmi -f $PROD_IMAGE:latest || true"
         }
-        steps {
-            script {
-                sh "docker build -t $DEV_IMAGE:latest ."
-                sh "docker push $DEV_IMAGE:latest"
-            }
-        }
-    }
-
-    stage('Build & Push Prod Image') {
-        when {
-            expression { env.BRANCH_NAME == 'main' }  // ← Fixed (or 'master' if your repo uses that)
-        }
-        steps {
-            script {
-                sh "docker build -t $PROD_IMAGE:latest ."
-                sh "docker push $PROD_IMAGE:latest"
-            }
-        }
-    }
-
-    stage('Deploy') {
-        when {
-            expression { env.BRANCH_NAME == 'main' }  // ← Fixed
-        }
-        steps {
-            script {
-                sh "./deploy.sh $PROD_IMAGE:latest"
-            }
-        }
-    }
-}
-
-post {
-    always {
-        echo "Cleaning up local Docker images..."
-        sh "docker rmi -f $DEV_IMAGE:latest || true"
-        sh "docker rmi -f $PROD_IMAGE:latest || true"
     }
 }
