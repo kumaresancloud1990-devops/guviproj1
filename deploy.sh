@@ -13,11 +13,12 @@
 # docker run -d -p 8080:80 --name react-app $IMAGE
 #!/bin/bash
 
-IMAGE=$1
+!/bin/bash
 
-# Stop old container if exists
-docker stop react-app || true
-docker rm react-app || true
+IMAGE_NAME=$1
 
-# Run new container
-docker run -d --name react-app -p 80:80 $IMAGE
+echo "Stopping old container..."
+docker rm -f react-app || true
+
+echo "Running new container..."
+docker run -d -p 8085:80 --name react-app $IMAGE_NAME
