@@ -15,10 +15,11 @@ pipeline {
             }
         }
 
-        // 🔍 Debug (optional but useful)
+        // 🔍 Debug Stage (IMPORTANT)
         stage('Debug Branch') {
             steps {
-                echo "Current Branch: ${env.BRANCH_NAME}"
+                echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+                echo "GIT_BRANCH: ${env.GIT_BRANCH}"
             }
         }
 
@@ -38,7 +39,7 @@ pipeline {
         // ================= DEV =================
         stage('Build & Push DEV') {
             when {
-                expression { env.BRANCH_NAME == 'dev' }
+                expression { env.GIT_BRANCH == 'origin/dev' }
             }
             steps {
                 echo "Building DEV image..."
@@ -51,7 +52,7 @@ pipeline {
 
         stage('Deploy DEV') {
             when {
-                expression { env.BRANCH_NAME == 'dev' }
+                expression { env.GIT_BRANCH == 'origin/dev' }
             }
             steps {
                 echo "Deploying DEV..."
@@ -62,7 +63,7 @@ pipeline {
         // ================= PROD =================
         stage('Build & Push PROD') {
             when {
-                expression { env.BRANCH_NAME == 'main' }
+                expression { env.GIT_BRANCH == 'origin/main' }
             }
             steps {
                 echo "Building PROD image..."
@@ -75,7 +76,7 @@ pipeline {
 
         stage('Deploy PROD') {
             when {
-                expression { env.BRANCH_NAME == 'main' }
+                expression { env.GIT_BRANCH == 'origin/main' }
             }
             steps {
                 echo "Deploying PROD..."
