@@ -93,12 +93,6 @@ Configure alerts:
 ✔️ Dev & Prod environment separation
 ✔️ AWS cloud deployment
 ✔️ Real-time monitoring with alerts
-🚀 Future Improvements
-🔒 Add HTTPS (Nginx + SSL)
-☸️ Kubernetes deployment
-📩 Slack/Email notifications
-🏗️ Infrastructure as Code (Terraform)
-👨‍💻 Author
 
 Kumaresan Vijayakumar
 DevOps Engineer
